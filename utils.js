@@ -7,7 +7,6 @@ const dev = process.env.NODE_ENV !== 'production';
  
 // refresh token list to manage the xsrf token
 const refreshTokens = {};
- 
 // cookie options to create refresh token
 const COOKIE_OPTIONS = {
   // domain: "localhost",
@@ -58,7 +57,7 @@ function generateRefreshToken(userId) {
 // verify access token and refresh token
 function verifyToken(token, xsrfToken = '', cb) {
   const privateKey = process.env.JWT_SECRET + xsrfToken;
-  jwt.verify(token, privateKey, cb);
+  jwt.verify(token, privateKey, cb); 
 }
  
 // return basic user details

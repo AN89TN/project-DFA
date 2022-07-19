@@ -22,10 +22,8 @@ function generateToken(user) {
   if (!user) return null;
  
   const u = {
-    userId: user.userId,
-    name: user.name,
-    username: user.username,
-    isAdmin: user.isAdmin
+    _id: user._id,
+    username: user.username
   };
  
   // generat xsrf token and use it to generate access token
@@ -48,10 +46,10 @@ function generateToken(user) {
 }
  
 // generate refresh token
-function generateRefreshToken(userId) {
-  if (!userId) return null;
+function generateRefreshToken(_id) {
+  if (!_id) return null;
  
-  return jwt.sign({ userId }, process.env.JWT_SECRET, { expiresIn: process.env.REFRESH_TOKEN_LIFE });
+  return jwt.sign({ _id }, process.env.JWT_SECRET, { expiresIn: process.env.REFRESH_TOKEN_LIFE });
 }
  
 // verify access token and refresh token
@@ -65,10 +63,8 @@ function getCleanUser(user) {
   if (!user) return null;
  
   return {
-    userId: user.userId,
-    name: user.name,
-    username: user.username,
-    isAdmin: user.isAdmin
+    _id: user._id,
+    username: user.username
   };
 }
  

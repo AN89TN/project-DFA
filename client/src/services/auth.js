@@ -37,6 +37,18 @@ export const userSigninService = async (user, pass) => {
     }
   }
 
+// user login API to validate the credential
+export const userLoginService = async (user, pass) => {
+  try {
+    return await axios.post(`${API_URL}/login`, { user, pass });
+  } catch (err) {
+    return {
+      error: true,
+      response: err.response
+    };
+  }
+}
+
 // manage user logout
 export const userLogoutService = async () => {
   try {
@@ -49,8 +61,20 @@ export const userLogoutService = async () => {
   }
 }
 
-// get list of the users
-export const getUserListService = async () => {
+// send data of the users
+export const sendUserDataService = async (serviceData) => {
+  try {
+    return await axios.post(`${API_URL}/userdata`, { serviceData });
+  } catch (err) {
+    return {
+      error: true,
+      response: err.response
+    };
+  }
+}
+
+// recive data of the users
+export const reciveUserDataService = async (serviceData) => {
   try {
     return await axios.get(`${API_URL}/userdata`);
   } catch (err) {

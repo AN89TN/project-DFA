@@ -37,7 +37,7 @@ function generateToken(user) {
  
   // expiry time of the access token
   const expiredAt = moment().add(ms(process.env.ACCESS_TOKEN_LIFE), 'ms').valueOf();
- 
+
   return {
     token,
     expiredAt,

@@ -13,23 +13,43 @@ import './App.css';
 function App() {
     const [user, setUser] = useState("");
     const [pass, setPass] = useState("");
-    const [isAuthenticated, setAuthStatus] = useState(false)
-    const [isLogin, setLoginToggle] = useState(false)
+    const [isAuthenticated, setAuthStatus] = useState(false);
+    const [isLogin, setLoginToggle] = useState(false);
     const [cookie, setCookie] = useState([]);
     const [error, setError] = useState("");
 
-    
+    useEffect(() => {
+      var account = localStorage.getItem('MODTaccount');
+      if (!account) return
+      setCookie(JSON.parse(account));
+      setAuthToken(cookie.token);
+      setAuthStatus(true);
+      const verifyTokenTimer = setTimeout(async () => {
+          const result = await verifyTokenService();
+          if (result.data) { 
+          setCookie(result.data);
+          setAuthToken(cookie.token); 
+          } 
+          if (!result.data) return (userLogoutService(), setCookie([]), setAuthStatus(false),setAuthToken(""), localStorage.setItem('MODTaccount', ""));
+    }, moment(cookie.expiredAt).diff(moment()) - 10 * 1000);
+      return () => {
+        clearTimeout(verifyTokenTimer);
+      }
+    }, [cookie.expiredAt, cookie.token]);
 
     const sendSignIn = async (e) => {
+      e.preventDefault();
       const result = await userSigninService(user, pass);
 
       if (result.data) {
+        localStorage.setItem('MODTaccount', JSON.stringify(result.data));
         setCookie(result.data);
         setAuthToken(cookie.token);
         setAuthStatus(true);
         setError("");
       }
       if (!result.data) {
+        localStorage.setItem('MODTaccount', "");
         setError(result.response.data.message);
         userLogoutService();
         setCookie([]);
@@ -40,15 +60,19 @@ function App() {
       setPass("");
     }
 
-    const sendLogIn = async (e) => {
+    const sendLogIn = async(e) => {
+      e.preventDefault()
       const result = await userLoginService(user, pass);
+  
       if (result.data) {
+        localStorage.setItem('MODTaccount', JSON.stringify(result.data));
         setCookie(result.data);
         setAuthToken(cookie.token);
         setAuthStatus(true);
         setError("");
       }
       if (!result.data) {
+        localStorage.setItem('MODTaccount', "");
         setError(result.response.data.message);
         userLogoutService();
         setCookie([]);
@@ -60,7 +84,8 @@ function App() {
     };
 
     const sendLogout = async  () => {
-      userLogoutService();
+      await userLogoutService();
+      localStorage.setItem('MODTaccount', "");
       setCookie([]);
       setAuthStatus(false);
       setAuthToken("");
@@ -71,28 +96,6 @@ function App() {
       if (!result.data) return (userLogoutService(), setCookie([]), setAuthStatus(false),setAuthToken(""));
       setCookie(result.data)
     }
-    
-    useEffect( () => {
-      if (isAuthenticated)  {
-        validateSignin()
-        }
-}, [isAuthenticated])
-
-
-    useEffect(() => {
-      setAuthToken(cookie.token);
-      const verifyTokenTimer = setTimeout(() => {
-          const result = verifyTokenService();
-          if (!result)
-          setCookie(result.data)
-      }, moment(cookie.expiredAt).diff() - 10 * 1000);
-      return () => {
-        clearTimeout(verifyTokenTimer);
-      }
-    }, [cookie])
-
-
-
 
   return (
     <div className="App">
@@ -123,7 +126,7 @@ function App() {
         <Routes>
           <Route path="/"  element={ <Home /> } />
           <Route path="/user"  element={isAuthenticated ? <User cookie = {cookie} /> : <Navigate replace to='/'/> } />
-          <Route path="/createrooms"  element={isAuthenticated ? <Room cookie = {cookie} /> : <Navigate replace to='/'/> } />
+          <Route path="/createrooms"  element={isAuthenticated ? <Room functions={[isAuthenticated, setAuthStatus]} cookie = {cookie} /> : <Navigate replace to='/'/> } />
           <Route path="/about"  element={ <About /> } />
         </Routes>
       </Router>
@@ -136,17 +139,17 @@ function App() {
       <h1>Welcome {user}</h1>
       <div className='Form-Container-Login'>
       <label>Login or Create New User?</label><br/><input type="checkbox"  onChange={() => setLoginToggle(!isLogin)} defaultChecked={isLogin}/>
-      <form onClick={(e) => e.preventDefault()}>
-        <label>Username</label><br/><input type="text" onChange={(e) => setUser(e.target.value)} value={user} /><br/>
-        <label>Password</label><br/><input type="password" onChange={(e) => setPass(e.target.value)} value={pass} /><br/>
+      <form>
+        <label>Username</label><br/><input type="text" maxLength="30" onChange={(e) => setUser(e.target.value.replace(/^\s/g, '').replace(/\s$/g, ''))} value={user} /><br/>
+        <label>Password</label><br/><input type="password" maxLength="30" onChange={(e) => setPass(e.target.value.replace(/^\s/g, '').replace(/\s$/g, ''))} value={pass} /><br/>
 
         {!isLogin ?
         <>
-        <label>Ready to Login?</label><br/><input type="submit" onClick={() => sendLogIn()} /><br/>
+        <label>Ready to Login?</label><br/><input type="submit" onClick={(e) => sendLogIn(e)} /><br/>
         </>
         :
         <>
-        <label>Ready to Create a New User?</label><br/><input type="submit" onClick={() => sendSignIn()} /><br/>
+        <label>Ready to Create a New User?</label><br/><input type="submit" onClick={(e) => sendSignIn(e)} /><br/>
         </>
         }
 

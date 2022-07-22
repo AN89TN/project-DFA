@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { sendUserDataService, reciveUserDataService } from "./../services/auth";
+import { sendUserDataService, reciveUserDataService, userLogoutService, setAuthToken } from "./../services/auth";
 import io from "socket.io-client";
 
 function Room(props) {
 
-        const [cookie, setCookie] = useState([]);
         const [room, setRoom] = useState("");
         const [roomConnected, setRoomConnected] = useState(true);
         const [socket, setSocket] = useState(null);
@@ -18,36 +17,34 @@ function Room(props) {
         const [crBonus, setCrBonus] = useState("0");
         const [crMalus, setCrMalus] = useState("0");
         const [crTot, setCrTot] = useState([]);
-        const [getOptions, setOptions] = useState([])
+        const [getOptions, setOptions] = useState([]);
+        const [isAuthenticated, setAuthStatus] = props.functions;
 
         var id = () => new Date().valueOf().toString(36) + Math.random().toString(36).slice(2);
 
         useEffect(() => {
-          setCookie(props.cookie);
-            },[props.cookie]);
-   
-        useEffect(() => {
           const getDataUser = async () => {
             const result = await reciveUserDataService();
+            if (result.error) return (userLogoutService(), setAuthStatus(false), setAuthToken(""), localStorage.setItem('MODTaccount', ""))
             setCustomRolls(result.data.data);
             setOptions(result.data.options[0]);
           };
           getDataUser();
           
-        },[]);
+        },[setAuthStatus,isAuthenticated]);
       
         // establish socket connection
         useEffect(() => {
           if (roomConnected) return
-          const newSocket = io('http://localhost:5000/Room-'+ room, {"query": {user: getOptions.name, isDM: getOptions.isDM, token: cookie.token} });
+          const newSocket = io('http://localhost:5000/Room-'+ room, {"query": {user: getOptions.name, isDM: getOptions.isDM, token: props.cookie.token} });
           setSocket(newSocket);
           return () => newSocket.close();
-        }, [setSocket, room, roomConnected, cookie, getOptions]);
+        }, [setSocket, room, roomConnected, props, getOptions]);
        
         // subscribe to the socket event
         useEffect(() => {
           if (!socket) return;
-          if(!cookie.user) return;
+          if(!props.cookie.user) return;
           socket.on('connect', () => {
             setSocketConnected(socket.connected);
             socket.emit("welcome");
@@ -72,7 +69,7 @@ function Room(props) {
             setResult(prevResult => [data, ...prevResult]);
           });
           
-        }, [socket, cookie]);
+        }, [socket, props]);
        
         // manage socket connection
         const handleSocketConnection = () => {
@@ -146,7 +143,7 @@ function Room(props) {
       {roomConnected ?
       <div>
       <form onClick={(e) => e.preventDefault()}>
-      <label>Set your room name or paste the name of an existing one:</label><br/><input type="text" onChange={(e) => setRoom(e.target.value)} value={room} /><br/>
+      <label>Set your room name or paste the name of an existing one:</label><br/><input type="text" maxLength="30" onChange={(e) => setRoom(e.target.value.replace(/^\s*$/, '').replace(/\s$/g, '').replace(/[^a-zA-Z0-9 ]/g, ''))} value={room} /><br/>
       <input type="submit" onClick={handleSocketConnection} disabled={!room} value={"Connect!"}/>
       </form>
       </div>
@@ -190,7 +187,7 @@ function Room(props) {
       <div>
       <form onClick={(e) => e.preventDefault()}>
         <b>Create your custom roll:</b><br/><br/>
-        <label>Name your roll: </label><input type="text" value={customRollName} onChange={(e) => setCustomRollName(e.target.value)}/><br/>
+        <label>Name your roll: </label><input type="text" value={customRollName} maxLength="30" onChange={(e) => setCustomRollName(e.target.value.replace(/^\s*$/, ''))}/><br/>
         Create your custom dice:<br/> 
         <label>Faces: </label><input type="number" min={1} value={crFaces} onChange={(e) => { if (e.target.value >= 0) setCrFaces(e.target.value.replace(/^0+/, '').replace(/\D/g, ''))}} />
         <label>Num of Rolls: </label><input type="number" min={1} value={crQuantity} onChange={(e) => { if (e.target.value >= 0) setCrQuantity(e.target.value.replace(/^0+/, '').replace(/\D/g, ''))}} />
@@ -202,7 +199,7 @@ function Room(props) {
           <div><li>{e.qtDado} d{e.faces} {e.bonus > 0 ? (" + " + e.bonus) : null} {e.malus > 0 ? (" - " + e.malus) : null} <br/></li></div>
           </div>
          )}<br/><br/>
-        <input type="submit" value={"Save the custom roll"} disabled={crTot.length === 0} onClick={() => sendData()} />
+        <input type="submit" value={"Save the custom roll"} disabled={customRollName.length === 0 || crTot.length === 0} onClick={() => sendData()} />
         <input type="button" onClick={() => handleCustomRolls(crTot)} disabled={crTot.length === 0} value={"Roll the custom roll"}/>
         <input type="button" value={"Discard the custom roll"} onClick={() => resetCustomRollDice()}/>
       </form>

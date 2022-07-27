@@ -63,7 +63,7 @@ const {
 
 // enable CORS
 app.use(cors({
-    origin: 'http://localhost:3000', // url of the frontend application
+    origin: 'https://diceforall.herokuapp.com/', // url of the frontend application http://localhost:3000
     credentials: true // set credentials true for secure httpOnly cookie
   }));
 
@@ -343,4 +343,8 @@ const timeStamp = () => {
 
 
 
-app.use(express.static(path.resolve(__dirname, "../client/src")));
+app.use(express.static(path.resolve(__dirname, "../react-ui/build")));
+
+app.get('/*', function(req, res) {
+  res.sendFile(path.resolve(__dirname, "../react-ui/build/index.html"));
+});

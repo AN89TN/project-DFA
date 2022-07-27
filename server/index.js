@@ -349,6 +349,7 @@ let protected = ['transformed.js', 'main.css', 'favicon.ico']
 app.get("*", (req, res) => {
 
   let pathu = req.params['0'].substring(1)
+  console.log(pathu)
 
   if (protected.includes(pathu)) {
     // Return the actual file

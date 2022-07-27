@@ -3,7 +3,9 @@ import React from "react";
 function Home(props) {
 
     return (
-        <h1> Hello Home </h1>
+        <div className="Home">
+        <h1> Hello Home {props.options[0].name} </h1>
+        </div>
     )
 }
 

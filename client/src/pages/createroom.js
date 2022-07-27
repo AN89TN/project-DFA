@@ -17,8 +17,10 @@ function Room(props) {
         const [crBonus, setCrBonus] = useState("0");
         const [crMalus, setCrMalus] = useState("0");
         const [crTot, setCrTot] = useState([]);
-        const [getOptions, setOptions] = useState([]);
-        const [isAuthenticated, setAuthStatus] = props.functions;
+        const [getOptions] = props.options;
+        const [setAuthStatus] = props.auth;
+        const [dmSecretRollFaces, setDmSecretRollFaces] = useState("20");
+        const [dmSecretRollResult, setDmSecretRollResult] = useState("20");
 
         var id = () => new Date().valueOf().toString(36) + Math.random().toString(36).slice(2);
 
@@ -27,11 +29,9 @@ function Room(props) {
             const result = await reciveUserDataService();
             if (result.error) return (userLogoutService(), setAuthStatus(false), setAuthToken(""), localStorage.setItem('MODTaccount', ""))
             setCustomRolls(result.data.data);
-            setOptions(result.data.options[0]);
           };
           getDataUser();
-          
-        },[setAuthStatus,isAuthenticated]);
+        },[setAuthStatus]);
       
         // establish socket connection
         useEffect(() => {
@@ -68,6 +68,9 @@ function Room(props) {
           socket.on("bye", data => {
             setResult(prevResult => [data, ...prevResult]);
           });
+          socket.on("secretDmRoll", data => {
+            setResult(prevResult => [data, ...prevResult]);
+          });
           
         }, [socket, props]);
        
@@ -94,6 +97,16 @@ function Room(props) {
 
       function handleCustomRolls(n) {
         socket.emit("customRolls", n)
+      }
+
+      function handleSecretRoll(faces, result) {
+        if (faces === "") return setDmSecretRollFaces("1");
+        if (result === "") return setDmSecretRollResult("1");
+        if (faces > 1000000) return setDmSecretRollFaces("1000000");
+        if (result > 1000000) return setDmSecretRollResult("1000000");
+        socket.emit("secretDmRoll", faces, result)
+        setDmSecretRollFaces("20");
+        setDmSecretRollResult("20");
       }
 
       function setCustomRollDice() {
@@ -127,7 +140,6 @@ function Room(props) {
         resetCustomRollDice();
       }
 
-
     const deleteData = async (id) => {
       var deleteCustomRoll = {
         command: "DELETE",
@@ -139,7 +151,8 @@ function Room(props) {
 
     return (
 
-    <div >
+    <div className="Room">
+    <h1> Hello {props.options[0].name}  </h1>
       {roomConnected ?
       <div>
       <form onClick={(e) => e.preventDefault()}>
@@ -173,10 +186,10 @@ function Room(props) {
 
       <div><b>Result: </b> 
       {result.map(e => 
-      <div key={e.id} style={{border: '1px solid black', width: "50%", textAlign : "center", display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: "5px"}}>
-      <div style={{border: '1px solid black', width: "50%", textAlign : "center", display: 'flex', alignItems: 'center', justifyContent: 'center'}}>At {e.time}</div>
-      <div style={{border: '1px solid black', width: "50%", textAlign : "center", display: 'flex', alignItems: 'center', justifyContent: 'center'}}>User: {e.username}</div>
-      <div style={{border: '1px solid black', width: "50%", textAlign : "center", display: 'flex', alignItems: 'center', justifyContent: 'center'}}>{e.message}</div>
+      <div key={e.id}>
+      <div>At {e.time}</div>
+      <div>User: {e.username}</div>
+      <div>{e.message}</div>
       </div>
       )}
       </div>
@@ -220,18 +233,20 @@ function Room(props) {
 
       </div>
       )}
-
-
       </div>
+      {props.options[0].isDM ? 
+      <div>
+      <b>DM secret roll:</b>
+      <br/>
+      <label>Faces: </label><input type="number" min={1} value={dmSecretRollFaces} onChange={(e) => { if (e.target.value >= 0) setDmSecretRollFaces(e.target.value.replace(/^0+/, '').replace(/\D/g, ''))}} />
+      <label>Result: </label><input type="number" min={1} value={dmSecretRollResult} onChange={(e) => { if (e.target.value >= 0) setDmSecretRollResult(e.target.value.replace(/^0+/, '').replace(/\D/g, ''))}} />
+      <input type="button" onClick={() => handleSecretRoll(dmSecretRollFaces, dmSecretRollResult)} value={"Roll"}/>
+      </div>
+    
+      : null}
       </div>
 
-      :
-      null}
-
-      
-
-
-
+      : null}
     </div>
 
     

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Navigate, Route, NavLink} from 'react-router-dom';
 import { setAuthToken ,userSigninService, verifyTokenService,
-         userLogoutService, userLoginService } from "./services/auth";
+         userLogoutService, userLoginService, reciveUserDataService } from "./services/auth";
 import moment from 'moment';
 import Home from "./pages/home";
 import User from "./pages/user";
@@ -17,16 +17,21 @@ function App() {
     const [isLogin, setLoginToggle] = useState(false);
     const [cookie, setCookie] = useState([]);
     const [error, setError] = useState("");
+    const [getOptions, setOptions] = useState([]);
 
     useEffect(() => {
-      var account = localStorage.getItem('MODTaccount');
+    var account = localStorage.getItem('MODTaccount');
       if (!account) return
       setCookie(JSON.parse(account));
       setAuthToken(cookie.token);
       setAuthStatus(true);
+    }, [cookie.token]);
+
+    useEffect(() => {
       const verifyTokenTimer = setTimeout(async () => {
           const result = await verifyTokenService();
           if (result.data) { 
+          localStorage.setItem('MODTaccount', JSON.stringify(result.data));
           setCookie(result.data);
           setAuthToken(cookie.token); 
           } 
@@ -35,7 +40,19 @@ function App() {
       return () => {
         clearTimeout(verifyTokenTimer);
       }
-    }, [cookie.expiredAt, cookie.token]);
+    }, [cookie.token, cookie.expiredAt]);
+
+    
+    useEffect(() => {
+      if (isAuthenticated === false) return
+      const getDataUser = async () => {
+        const result = await reciveUserDataService();
+        if (result.error) return (userLogoutService(), setAuthStatus(false), setAuthToken(""), localStorage.setItem('MODTaccount', ""))
+        setOptions(result.data.options[0]);
+      };
+      getDataUser();
+      
+    },[isAuthenticated]);
 
     const sendSignIn = async (e) => {
       e.preventDefault();
@@ -89,44 +106,35 @@ function App() {
       setCookie([]);
       setAuthStatus(false);
       setAuthToken("");
-    }
+      setOptions([]);
+    };
 
-    const validateSignin = async  () => {
-      const result = await verifyTokenService();
-      if (!result.data) return (userLogoutService(), setCookie([]), setAuthStatus(false),setAuthToken(""));
-      setCookie(result.data)
-    }
+    const getDataUser = async () => {
+      const result = await reciveUserDataService();
+      if (result.error) return (userLogoutService(), setAuthStatus(false), setAuthToken(""), localStorage.setItem('MODTaccount', ""))
+      setOptions(result.data.options[0]);
+    };
 
   return (
-    <div className="App">
+    <div className="App-Main">
     
       <Router>
-        <div className='Nav-Bar'>
-        <div>
-          <NavLink to="/">To Home</NavLink>
-      </div>
-      <div>
-          <NavLink to="/about">To About</NavLink>
-      </div>
+      <ul className='Nav-Bar-Container'>
+      <div className='Logo'></div>
+          <li><NavLink to="/">Home</NavLink></li>
+          <li><NavLink to="/about">About</NavLink></li>
       {isAuthenticated && (
       <>
-      <div>
-          <NavLink to="/user">To User</NavLink>
-      </div>
-      <div>
-          <NavLink to="/createrooms">To Create Rooms</NavLink>
-      </div>
-      <label>Logout?</label><br/><input type="submit" onClick={() => sendLogout()} />
-      <br/>
-      <br/>  
-      <br/>
+          <li><NavLink to="/user">User</NavLink></li>
+          <li><NavLink to="/createrooms">Rooms</NavLink></li>
+          <li><input className="Button-Nav-Bar" type="button" onClick={() => sendLogout()} value={"Logout"}/></li>
       </>
       )}
-       </div>
+       </ul>
         <Routes>
-          <Route path="/"  element={ <Home /> } />
-          <Route path="/user"  element={isAuthenticated ? <User cookie = {cookie} /> : <Navigate replace to='/'/> } />
-          <Route path="/createrooms"  element={isAuthenticated ? <Room functions={[isAuthenticated, setAuthStatus]} cookie = {cookie} /> : <Navigate replace to='/'/> } />
+          <Route path="/"  element={ <Home options={[getOptions, setOptions]} auth={[isAuthenticated, setAuthStatus]} cookie = {cookie} /> } />
+          <Route path="/user"  element={isAuthenticated ? <User logOut={sendLogout} dataUser={getDataUser} options={[getOptions, setOptions]} auth={[isAuthenticated, setAuthStatus]} cookie = {cookie} /> : <Navigate replace to='/'/> } />
+          <Route path="/createrooms"  element={isAuthenticated ? <Room options={[getOptions, setOptions]} auth={[isAuthenticated, setAuthStatus]} cookie = {cookie} /> : <Navigate replace to='/'/> } />
           <Route path="/about"  element={ <About /> } />
         </Routes>
       </Router>
@@ -136,9 +144,24 @@ function App() {
 
       {!isAuthenticated && (
         <>
+      <div className='Container-Login-Form'>
       <h1>Welcome {user}</h1>
-      <div className='Form-Container-Login'>
-      <label>Login or Create New User?</label><br/><input type="checkbox"  onChange={() => setLoginToggle(!isLogin)} defaultChecked={isLogin}/>
+      <div className='Login-Form'>
+      <div className='Login-Signin'>
+      <label>Login or Create New User?</label><br/><br/>
+      <label className="label-text">Login</label>
+      <label className="label">
+      -
+      <div className="toggle">
+      <input className="toggle-state" type="checkbox" onChange={() => setLoginToggle(!isLogin)} defaultChecked={isLogin} />
+      <div className="indicator"></div>
+      </div>
+      -
+      </label>
+      <label className="label-text">Signin</label>
+      <br/><br/>
+      </div>
+      
       <form>
         <label>Username</label><br/><input type="text" maxLength="30" onChange={(e) => setUser(e.target.value.replace(/^\s/g, '').replace(/\s$/g, ''))} value={user} /><br/>
         <label>Password</label><br/><input type="password" maxLength="30" onChange={(e) => setPass(e.target.value.replace(/^\s/g, '').replace(/\s$/g, ''))} value={pass} /><br/>
@@ -153,15 +176,13 @@ function App() {
         </>
         }
 
-        <label style={{color: "red"}}>{error}</label><br/>
+        <label style={{color: "red"}}>{error}</label>
       </form>
+      </div>
       </div>
       </>
       )}
-      <br/><br/><br/>
-      <div className='Form-Container-Validation'>
-      <label>Are you valid?</label><br/><input type="submit" onClick={() => validateSignin()} /><br/>
-      <label>{JSON.stringify(cookie, null, 2)}</label><br/>
+      <div className='Container-Footer'>
       <Footer />
       </div>
     </div>

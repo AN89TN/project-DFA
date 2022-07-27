@@ -31,7 +31,7 @@ const Schema = {
   data: Array,
   options: [{
     name: String,
-    isDM: String,
+    isDM: Boolean,
     colors: Array,
     _id: false
   }]
@@ -254,11 +254,24 @@ app.use('/userdata', authMiddleware , function (req, res) {
   else if (command == "DELETE") {
     Data.findByIdAndUpdate({ "_id" : req.user._id}, {$pull:{"data": {"id" : req.body.serviceData.id}}},  (err, itemSearch) => {
       return handleResponse(req, res, 200)
-  })
+  })}
+  else if (command == "DELETE_ACCOUNT") {
+    Data.findByIdAndDelete({"_id" : req.user._id}, (err, itemSearch) => {
+    return handleResponse(req, res, 200)
+  })}
+  else if (command == "CHANGE_DM") {
+    Data.findOneAndUpdate({ "_id" : req.user._id},{$set:{"options.$[].isDM":  req.body.serviceData.data.isDM}} , (err, itemSearch) => {
+    return handleResponse(req, res, 200)
+  })}
+  else if (command == "CHANGE_NAME") {
+    Data.findOneAndUpdate({ "_id" : req.user._id},{$set:{"options.$[].name":  req.body.serviceData.data.name}} , (err, itemSearch) => {
+    return handleResponse(req, res, 200)
+  })}
 
-  }};
+};
   if (method === "GET") {
     Data.findById(req.user._id, (err, itemSearch) => {
+      if (itemSearch === null) return handleResponse(req, res, 400);
       return handleResponse(req, res, 200, { data: itemSearch.data, options: itemSearch.options });
     });
     };
@@ -291,16 +304,19 @@ const dynamicNsp = io.of(/Room-\w+/).on("connection", (socket) => {
 
   socket.on('disconnect', () => {
     console.log("Client "+ user() +" disconnected");
-    newNamespace.emit('bye', {time: timeStamp(), username : user(), id : id(), message : "has left the "+ newNamespace.name.substring(1) + "."});
+    newNamespace.emit('bye', {time: timeStamp(), username : user(), id : id(), message : "has left the "+ newNamespace.name.substring(1) + ", number of users connected: " + (newNamespace.server.engine.clientsCount-1) + "."});
   });
   socket.on('roll', (n,cb) => {
     newNamespace.emit('result', {time: timeStamp(), username : user(), "id" : id(), message : " Roll a 1d" + n + " = " + dice(n)});
   });
   socket.on('welcome', () => {
-    newNamespace.emit('welcome', {time: timeStamp(), username : user(), "id" : id(), message : "has joined the " + newNamespace.name.substring(1) + "."});
+    newNamespace.emit('welcome', {time: timeStamp(), username : user(), "id" : id(), message : "has joined the " + newNamespace.name.substring(1) + ", number of users connected: " + newNamespace.server.engine.clientsCount + "."});
   });}
   socket.on('customRolls', (n,cb) => {
     newNamespace.emit('customResult', {time: timeStamp(), username : user(), "id" : id(), message : " Custom Roll: " + n.map((e => "[(" + e.qtDado + "d" + e.faces + (e.bonus > 0 ? (" + " + e.bonus) : "") + (e.malus > 0 ? (" - " + e.malus) : "") + ") = " + customDice(e.qtDado, e.faces, e.bonus, e.malus) + "] "))});
+  });
+  socket.on('secretDmRoll', (faces,result,cb) => {
+    newNamespace.emit('secretDmRoll', {time: timeStamp(), username : user(), "id" : id(), message : " Roll a 1d" + faces + " = " + result});
   });
 });
 

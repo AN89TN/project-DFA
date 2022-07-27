@@ -342,18 +342,4 @@ const timeStamp = () => {
   return(hour + ":" + min + ":" + sec)
 }
 
-app.use(express.static(path.join(__dirname, 'build')));
-
-let protected = ['transformed.js', 'main.css', 'favicon.ico']
-app.get("/*", (req, res) => {
-
-  let pathu = req.params['0'].substring(1)
-
-  if (protected.includes(pathu)) {
-    // Return the actual file
-    res.sendFile(path.join(__dirname, 'build', 'index.html'));
-  } else {
-    // Otherwise, redirect to /build/index.html
-    res.sendFile(path.join(__dirname, 'build', 'index.html'));
-  }
-});
+app.use(express.static(path.resolve(__dirname, "../react-ui/build")));

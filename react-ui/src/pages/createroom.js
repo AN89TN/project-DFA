@@ -36,7 +36,7 @@ function Room(props) {
         // establish socket connection
         useEffect(() => {
           if (roomConnected) return
-          const newSocket = io('http://localhost:5000/Room-'+ room, {"query": {user: getOptions.name, isDM: getOptions.isDM, token: props.cookie.token} });
+          const newSocket = io('https://diceforall.herokuapp.com/Room-'+ room, {"query": {user: getOptions.name, isDM: getOptions.isDM, token: props.cookie.token} }); //http://localhost:5000/Room-
           setSocket(newSocket);
           return () => newSocket.close();
         }, [setSocket, room, roomConnected, props, getOptions]);

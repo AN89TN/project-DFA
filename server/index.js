@@ -348,13 +348,13 @@ app.use(express.static(path.resolve(__dirname, "../react-ui/build")));
 let protected = ['transformed.js', 'main.css', 'favicon.ico']
 app.get("*", (req, res) => {
 
-  let path = req.params['0'].substring(1)
+  let pathu = req.params['0'].substring(1)
 
-  if (protected.includes(path)) {
+  if (protected.includes(pathu)) {
     // Return the actual file
-    res.sendFile(`${__dirname}/react-ui/build/${path}`);
+    res.sendFile(path.resolve(__dirname, "../react-ui/build"));
   } else {
     // Otherwise, redirect to /build/index.html
-    res.sendFile(`${__dirname}/react-ui/build/index.html`);
+    res.sendFile(path.resolve(__dirname, "../react-ui/build"));
   }
 });

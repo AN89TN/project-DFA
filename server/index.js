@@ -342,4 +342,3 @@ const timeStamp = () => {
   return(hour + ":" + min + ":" + sec)
 }
 
-app.use('/*', express.static(path.resolve(__dirname, "../react-ui/build")));

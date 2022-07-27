@@ -344,7 +344,3 @@ const timeStamp = () => {
 
 
 app.use(express.static(path.resolve(__dirname, "../react-ui/build")));
-
-app.get('/*', function(req, res) {
-  res.sendFile(path.resolve(__dirname, "../react-ui/build/index.html"));
-});

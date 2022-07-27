@@ -344,6 +344,8 @@ const timeStamp = () => {
 
 app.use(express.static(path.resolve(__dirname, "../react-ui/build")));
 
+
+let protected = ['transformed.js', 'main.css', 'favicon.ico']
 app.get("*", (req, res) => {
 
   let path = req.params['0'].substring(1)

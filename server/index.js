@@ -285,7 +285,7 @@ app.post('/logout', (req, res) => {
 
 var io = socketIO(server,{
   cors: {
-    origin: 'http://localhost:3000',
+    origin:   'https://diceforall.herokuapp.com',  //'http://localhost:3000',
     methods: ['GET', 'POST']
   }
 });

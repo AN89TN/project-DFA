@@ -342,7 +342,7 @@ const timeStamp = () => {
   return(hour + ":" + min + ":" + sec)
 }
 
-app.get('*', function(req, res) {
+app.get('/', function(req, res) {
   res.sendFile(path.resolve(__dirname, "../react-ui/build"));
 });
 

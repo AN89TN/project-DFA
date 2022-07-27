@@ -353,9 +353,9 @@ app.get("*", (req, res) => {
 
   if (protected.includes(pathu)) {
     // Return the actual file
-    res.sendFile(path.resolve(__dirname, "./react-ui/build"));
+    res.sendFile(path.resolve(__dirname, "/react-ui/build"));
   } else {
     // Otherwise, redirect to /build/index.html
-    res.sendFile(path.resolve(__dirname, "./react-ui/build"));
+    res.sendFile(path.resolve(__dirname, "/react-ui/build"));
   }
 });

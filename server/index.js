@@ -112,6 +112,7 @@ const authMiddleware = function (req, res, next) {
 
 // verify the token and return new tokens if it's valid
 app.post('/verifyToken', function (req, res) {
+  console.log(__dirname);
     const { signedCookies = {} } = req;
     const { refreshToken } = signedCookies;
     if (!refreshToken) {
@@ -341,6 +342,6 @@ const timeStamp = () => {
   var sec = (date.getSeconds()<10?'0':'') + date.getSeconds();
   return(hour + ":" + min + ":" + sec)
 }
-console.log(__dirname)
+
 //app.use(express.static(path.resolve(__dirname, "../react-ui/build")));
 app.use(express.static(path.join(__dirname, "../react-ui/build")));

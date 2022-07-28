@@ -112,7 +112,6 @@ const authMiddleware = function (req, res, next) {
 
 // verify the token and return new tokens if it's valid
 app.post('/verifyToken', function (req, res) {
-  console.log(__dirname);
     const { signedCookies = {} } = req;
     const { refreshToken } = signedCookies;
     if (!refreshToken) {

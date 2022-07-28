@@ -1,7 +1,7 @@
 .App-Main {
   background-color: #d1d1d1;
   text-align: center;
-  font-family: cursive;
+  font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
   color: #000000;
 
   background: linear-gradient(rgba(255,255,255,.9), rgba(255,255,255,.9)), url(../public/logo\ dnd.png);

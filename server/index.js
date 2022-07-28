@@ -305,7 +305,7 @@ const dynamicNsp = io.of(/Room-\w+/).on("connection", (socket) => {
     var hour = (date.getHours()<10?'0':'') + date.getHours();
     var min = (date.getMinutes()<10?'0':'') + date.getMinutes();
     var sec = (date.getSeconds()<10?'0':'') + date.getSeconds();
-    return((hour + parseInt(dateTz)) + ":" + min + ":" + sec)
+    return((parseInt(hour) + parseInt(dateTz)) + ":" + min + ":" + sec)
   }
 
   console.log("Client "+ user() +" connected");

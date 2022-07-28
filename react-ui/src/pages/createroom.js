@@ -36,7 +36,7 @@ function Room(props) {
         // establish socket connection
         useEffect(() => {
           if (roomConnected) return
-          const newSocket = io('https://diceforall.herokuapp.com/Room-'+ room, {"query": {user: getOptions.name, isDM: getOptions.isDM, token: props.cookie.token} }); //http://localhost:5000/Room-
+          const newSocket = io('https://diceforall.herokuapp.com/Room-'+ room, {"query": {user: getOptions.name, isDM: getOptions.isDM, token: props.cookie.token, dateTz: (new Date()).toString().split('(')[0].split(" ")[5].toUpperCase().substring(3, 6)} }); //http://localhost:5000/Room-
           setSocket(newSocket);
           return () => newSocket.close();
         }, [setSocket, room, roomConnected, props, getOptions]);
@@ -172,7 +172,7 @@ function Room(props) {
         value={socketConnected ? 'Disconnect' : 'Connect'}
         onClick={handleSocketConnection} /><br/>
  
-      <div><b>Time: </b> {dt}</div>
+      <div><b>Server Time: </b> {dt}</div>
 
       <input type="button" onClick={() => handleRolls(2)} value={"Roll a d2 dice!"}/>
       <input type="button" onClick={() => handleRolls(3)} value={"Roll a d3 dice!"}/>

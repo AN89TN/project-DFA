@@ -122,20 +122,20 @@ function App() {
       <ul className='Nav-Bar-Container'>
       <div className='Logo'></div>
           <li><NavLink to="/">Home</NavLink></li>
-          <li><NavLink to="about">About</NavLink></li>
+          <li><NavLink to="/about">About</NavLink></li>
       {isAuthenticated && (
       <>
-          <li><NavLink to="user">User</NavLink></li>
-          <li><NavLink to="createrooms">Rooms</NavLink></li>
+          <li><NavLink to="/user">User</NavLink></li>
+          <li><NavLink to="/createrooms">Rooms</NavLink></li>
           <li><input className="Button-Nav-Bar" type="button" onClick={() => sendLogout()} value={"Logout"}/></li>
       </>
       )}
        </ul>
         <Routes>
           <Route path="/"  element={ <Home options={[getOptions, setOptions]} auth={[isAuthenticated, setAuthStatus]} cookie = {cookie} /> } />
-          <Route path="user"  element={isAuthenticated ? <User logOut={sendLogout} dataUser={getDataUser} options={[getOptions, setOptions]} auth={[isAuthenticated, setAuthStatus]} cookie = {cookie} /> : <Navigate replace to='/'/> } />
-          <Route path="createrooms"  element={isAuthenticated ? <Room options={[getOptions, setOptions]} auth={[isAuthenticated, setAuthStatus]} cookie = {cookie} /> : <Navigate replace to='/'/> } />
-          <Route path="about"  element={ <About /> } />
+          <Route path="/user"  element={isAuthenticated ? <User logOut={sendLogout} dataUser={getDataUser} options={[getOptions, setOptions]} auth={[isAuthenticated, setAuthStatus]} cookie = {cookie} /> : <Navigate replace to='/'/> } />
+          <Route path="/createrooms"  element={isAuthenticated ? <Room options={[getOptions, setOptions]} auth={[isAuthenticated, setAuthStatus]} cookie = {cookie} /> : <Navigate replace to='/'/> } />
+          <Route path="/about"  element={ <About /> } />
         </Routes>
       </Router>
 

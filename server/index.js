@@ -348,3 +348,15 @@ app.use(express.static(path.join(__dirname, "../react-ui/build/")));
 app.get('/about', function (req, res) {
   res.sendFile(path.join(__dirname, "../react-ui/build/"));
 });
+
+app.get('/createrooms', function (req, res) {
+  res.sendFile(path.join(__dirname, "../react-ui/build/"));
+});
+
+app.get('/user', function (req, res) {
+  res.sendFile(path.join(__dirname, "../react-ui/build/"));
+});
+
+app.get('/*', (req, res) => {
+  res.send("is Dead, Error 404");
+});

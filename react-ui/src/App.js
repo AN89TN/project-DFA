@@ -8,7 +8,7 @@ import User from "./pages/user";
 import Room from "./pages/createroom";
 import About from "./pages/about";
 import Footer from "./pages/footer";
-import './App.css';
+import './app.css';
 
 function App() {
     const [user, setUser] = useState("");

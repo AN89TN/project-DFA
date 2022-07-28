@@ -341,6 +341,6 @@ const timeStamp = () => {
   var sec = (date.getSeconds()<10?'0':'') + date.getSeconds();
   return(hour + ":" + min + ":" + sec)
 }
-
+console.log(__dirname)
 //app.use(express.static(path.resolve(__dirname, "../react-ui/build")));
-app.use(express.static(path.join(__dirname, 'build')));
+app.use(express.static(path.join(__dirname, "../react-ui/build")));

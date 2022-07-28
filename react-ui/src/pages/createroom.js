@@ -36,7 +36,7 @@ function Room(props) {
         // establish socket connection
         useEffect(() => {
           if (roomConnected) return
-          const newSocket = io('https://diceforall.herokuapp.com/Room-'+ room, {"query": {user: getOptions.name, isDM: getOptions.isDM, token: props.cookie.token, dateTz: (new Date()).toString().split('(')[0].split(" ")[5].toUpperCase().substring(3, 6)} }); //http://localhost:5000/Room-
+          const newSocket = io('https://diceforall.herokuapp.com/Room-'+ room, {"query": {user: getOptions.name, isDM: getOptions.isDM, token: props.cookie.token} }); //http://localhost:5000/Room-
           setSocket(newSocket);
           return () => newSocket.close();
         }, [setSocket, room, roomConnected, props, getOptions]);

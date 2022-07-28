@@ -295,7 +295,6 @@ const dynamicNsp = io.of(/Room-\w+/).on("connection", (socket) => {
   const newNamespace = socket.nsp;
   var newUser = socket.handshake.query.user;
   var isDM = socket.handshake.query.isDM;
-  var dateTz = socket.handshake.query.dateTz;
 
   var user = () => { if (isDM === "false") return newUser; else return ( "[DM] " + newUser); };
   var id = () => new Date().valueOf().toString(36) + Math.random().toString(36).slice(2);
@@ -305,7 +304,7 @@ const dynamicNsp = io.of(/Room-\w+/).on("connection", (socket) => {
     var hour = (date.getHours()<10?'0':'') + date.getHours();
     var min = (date.getMinutes()<10?'0':'') + date.getMinutes();
     var sec = (date.getSeconds()<10?'0':'') + date.getSeconds();
-    return((parseInt(hour) + parseInt(dateTz)) + ":" + min + ":" + sec)
+    return(hour + ":" + min + ":" + sec)
   }
 
   console.log("Client "+ user() +" connected");

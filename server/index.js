@@ -63,7 +63,7 @@ const {
 
 // enable CORS
 app.use(cors({
-    origin: 'https://diceforall.herokuapp.com/', // url of the frontend application http://localhost:3000
+    origin: 'http://localhost:3000' || 'http://diceforall.herokuapp.com' , // url of the frontend application http://localhost:3000
     credentials: true // set credentials true for secure httpOnly cookie
   }));
 
@@ -285,7 +285,7 @@ app.post('/logout', (req, res) => {
 
 var io = socketIO(server,{
   cors: {
-    origin:   'http://diceforall.herokuapp.com',  //'http://localhost:3000',
+    origin:   'http://localhost:3000' || 'http://diceforall.herokuapp.com', //'http://localhost:3000',
     methods: ['GET', 'POST'],
     credentials: true
   }

@@ -18,6 +18,8 @@ function App() {
     const [cookie, setCookie] = useState([]);
     const [error, setError] = useState("");
     const [getOptions, setOptions] = useState([]);
+    const [toggleMenu, setToggleMenu] = useState(false);
+    const [screenWidth, setScreenWidth] = useState(window.innerWidth)
 
     useEffect(() => {
     var account = localStorage.getItem('MODTaccount');
@@ -53,6 +55,19 @@ function App() {
       getDataUser();
       
     },[isAuthenticated]);
+
+    useEffect(() => {
+      const changeWidth = () => {
+        if (window.innerWidth <= 600)
+        setScreenWidth(600);
+        if (window.innerWidth >= 601)
+        setScreenWidth(601);
+      }
+      window.addEventListener('resize', changeWidth)
+      return () => {
+        window.removeEventListener('resize', changeWidth)
+      }
+    }, [])
 
     const sendSignIn = async (e) => {
       e.preventDefault();
@@ -115,21 +130,38 @@ function App() {
       setOptions(result.data.options[0]);
     };
 
+    const toggleNav = () => {
+      setToggleMenu(!toggleMenu)
+    }
+
   return (
     <div className="App-Main">
     
       <Router>
+    <div className="Logo-Container">
+      {screenWidth <= 600 ? 
+          <>
+          <input className="Button-Nav-Bar-Nav" type="button" onClick={toggleNav}  value={"☰"}/>
+          <div className='Logo'></div>
+          </>
+          : null}
+      </div>
       <ul className='Nav-Bar-Container'>
-      <div className='Logo'></div>
+        
+          {(toggleMenu || screenWidth >= 601) && (
+            <>
+          <div className='Logo-Full'></div>
           <li><NavLink to="/">Home</NavLink></li>
           <li><NavLink to="/about">About</NavLink></li>
       {isAuthenticated && (
       <>
           <li><NavLink to="/user">User</NavLink></li>
           <li><NavLink to="/createrooms">Rooms</NavLink></li>
-          <li><input className="Button-Nav-Bar" type="button" onClick={() => sendLogout()} value={"Logout"}/></li>
+          <li><input className="Button-Nav-Bar-Log" type="button" onClick={() => sendLogout()} value={"Logout"}/></li>
       </>
       )}
+      </>
+          )}
        </ul>
         <Routes>
           <Route path="/"  element={ <Home options={[getOptions, setOptions]} auth={[isAuthenticated, setAuthStatus]} cookie = {cookie} /> } />
@@ -145,7 +177,7 @@ function App() {
       {!isAuthenticated && (
         <>
       <div className='Container-Login-Form'>
-      <h1>Welcome {user}</h1>
+      <h1>Welcome<br/>{user}</h1>
       <div className='Login-Form'>
       <div className='Login-Signin'>
       <label>Login or Create New User?</label><br/><br/>
@@ -168,11 +200,11 @@ function App() {
 
         {!isLogin ?
         <>
-        <label>Ready to Login?</label><br/><input type="submit" onClick={(e) => sendLogIn(e)} /><br/>
+        <label>Ready to Login?</label><br/><input className='raise-button' type="submit" onClick={(e) => sendLogIn(e)} /><br/>
         </>
         :
         <>
-        <label>Ready to Create a New User?</label><br/><input type="submit" onClick={(e) => sendSignIn(e)} /><br/>
+        <label>Ready to Create a New User?</label><br/><input className='raise-button' type="submit" onClick={(e) => sendSignIn(e)} /><br/>
         </>
         }
 

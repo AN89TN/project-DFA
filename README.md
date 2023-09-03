@@ -4,4 +4,4 @@ This project aim to create a simple room for real time comunication between clie
 
 Live version:
 
-https://diceforall.herokuapp.com
+https://modt.b4a.app/
